@@ -15,6 +15,7 @@ class Game:
     def draw(self):
         pass
 
+
 if __name__ == "__main__":
     g = Game()
     g.start()
