@@ -3,8 +3,8 @@
 import pygame as p
 
 from constants.board import *
-from constants.styles import *
 from constants.coordinates import MAP_POSITION
+from constants.styles import *
 from drawer import draw_map
 
 
@@ -14,11 +14,12 @@ class Game:
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
         self.map_surface = p.Surface((MAP_WIDTH, MAP_HEIGHT))
-
-    def start(self):
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
+
+    def start(self):
+        pass
 
     def handle_events(self):
         for e in p.event.get():
