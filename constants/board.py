@@ -7,3 +7,9 @@ MAP_HEIGHT = 1100
 
 ICON_PATH = 'images/icon.png'
 PROGRAM_TITLE = 'PyGame Self Driving'
+
+CAR_HEIGHT = 10
+CAR_WIDTH = 17
+CAR_IMAGE_PATH = 'images/car.png'
+CAR_VELOCITY = 5
+CAR_TURN_RATE = 0.5

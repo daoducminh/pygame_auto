@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from pygame.draw import lines
+import pygame as p
 
+from constants.board import CAR_HEIGHT, CAR_WIDTH, CAR_IMAGE_PATH
 from constants.coordinates import *
+
+CAR = p.transform.scale(
+    p.image.load(CAR_IMAGE_PATH),
+    (CAR_WIDTH, CAR_HEIGHT)
+)
 
 
 def draw_map(surface, color, width):
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -15,7 +21,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -24,7 +30,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -33,7 +39,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -42,7 +48,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -51,7 +57,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -60,7 +66,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -69,7 +75,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -78,7 +84,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -87,7 +93,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -96,7 +102,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -105,7 +111,7 @@ def draw_map(surface, color, width):
         ),
         width
     )
-    lines(
+    p.draw.lines(
         surface,
         color,
         False,
@@ -114,3 +120,17 @@ def draw_map(surface, color, width):
         ),
         width
     )
+
+
+def draw_car(surface, car):
+    surface.blit(
+        CAR,
+        p.Rect(
+            (car.x, car.y),
+            (CAR_WIDTH, CAR_HEIGHT)
+        )
+    )
+
+
+def erase_car(surface, car):
+    surface

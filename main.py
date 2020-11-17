@@ -3,9 +3,13 @@
 import pygame as p
 
 from constants.board import *
-from constants.coordinates import MAP_POSITION
+from constants.coordinates import CAR_INIT_X, CAR_INIT_Y
 from constants.styles import *
-from drawer import draw_map
+from drawer import draw_car, draw_map
+from models.vehicle import Car
+
+FPS = 30
+fps_clock = p.time.Clock()
 
 
 class Game:
@@ -13,7 +17,8 @@ class Game:
         p.init()
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
-        self.map_surface = p.Surface((MAP_WIDTH, MAP_HEIGHT))
+        # self.map_surface = p.Surface((MAP_WIDTH, MAP_HEIGHT))
+        self.car = Car(CAR_INIT_X, CAR_INIT_Y, CAR_VELOCITY, CAR_TURN_RATE, 0)
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
@@ -21,21 +26,32 @@ class Game:
     def start(self):
         pass
 
+    def clear(self):
+        self.screen.fill((0, 0, 0))
+
     def handle_events(self):
         for e in p.event.get():
             if e.type == p.QUIT:
                 self.running = False
+            elif e.type == p.KEYDOWN:
+                if e.key == p.K_UP:
+                    self.car.go_forward()
+            elif e.type == p.KEYUP:
+                if e.key == p.K_UP:
+                    self.car.go_forward()
 
     def draw(self):
-        self.screen.blit(self.map_surface, MAP_POSITION)
-        draw_map(self.map_surface, COLOR_WHITE, 1)
+        # self.screen.blit(self.map_surface, MAP_POSITION)
+        draw_map(self.screen, COLOR_WHITE, 1)
+        draw_car(self.screen, self.car)
         p.display.update()
+        fps_clock.tick(FPS)
 
 
 if __name__ == "__main__":
     g = Game()
     g.start()
-
     while g.running:
+        g.clear()
         g.handle_events()
         g.draw()

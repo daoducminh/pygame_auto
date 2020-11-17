@@ -108,3 +108,6 @@ K3 = (X2, Y14)
 K4 = (X1, Y14)
 
 MAP_POSITION = (10, 10)
+
+CAR_INIT_X = 10
+CAR_INIT_Y = 10
