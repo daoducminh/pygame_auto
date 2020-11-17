@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from math import degrees
+
 import pygame as p
 
 from constants.board import CAR_HEIGHT, CAR_WIDTH, CAR_IMAGE_PATH
 from constants.coordinates import *
 
-CAR = p.transform.scale(
-    p.image.load(CAR_IMAGE_PATH),
-    (CAR_WIDTH, CAR_HEIGHT)
-)
+CAR_IMAGE = p.image.load(CAR_IMAGE_PATH)
 
 
 def draw_map(surface, color, width):
@@ -123,14 +122,17 @@ def draw_map(surface, color, width):
 
 
 def draw_car(surface, car):
+    car_sprite = p.transform.rotate(
+        p.transform.scale(
+            CAR_IMAGE,
+            (CAR_WIDTH, CAR_HEIGHT)
+        ),
+        180 - degrees(car.angle)
+    )
     surface.blit(
-        CAR,
+        car_sprite,
         p.Rect(
             (car.x, car.y),
             (CAR_WIDTH, CAR_HEIGHT)
         )
     )
-
-
-def erase_car(surface, car):
-    surface

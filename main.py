@@ -18,7 +18,7 @@ class Game:
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
         # self.map_surface = p.Surface((MAP_WIDTH, MAP_HEIGHT))
-        self.car = Car(CAR_INIT_X, CAR_INIT_Y, CAR_VELOCITY, CAR_TURN_RATE, 0)
+        self.car = Car(CAR_INIT_X, CAR_INIT_Y, CAR_VELOCITY, CAR_TURN_RATE, CAR_ANGLE)
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
@@ -30,15 +30,16 @@ class Game:
         self.screen.fill((0, 0, 0))
 
     def handle_events(self):
+        keys = p.key.get_pressed()
+        if keys[p.K_UP]:
+            self.car.go_forward()
+        elif keys[p.K_RIGHT]:
+            self.car.turn_right()
+        elif keys[p.K_LEFT]:
+            self.car.turn_left()
         for e in p.event.get():
             if e.type == p.QUIT:
                 self.running = False
-            elif e.type == p.KEYDOWN:
-                if e.key == p.K_UP:
-                    self.car.go_forward()
-            elif e.type == p.KEYUP:
-                if e.key == p.K_UP:
-                    self.car.go_forward()
 
     def draw(self):
         # self.screen.blit(self.map_surface, MAP_POSITION)
