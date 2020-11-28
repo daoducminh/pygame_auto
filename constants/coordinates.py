@@ -5,6 +5,9 @@ BL = 140  # Block width
 AL = 30  # Alley width
 
 X0 = 0
+Y0 = 0
+
+# Horizontal
 X1 = X0 + RD
 X2 = X1 + 140
 X3 = X2 + 120
@@ -22,7 +25,7 @@ X14 = X5 + RD / 2
 X15 = X8 + RD / 2
 X16 = X10 + RD / 2
 
-Y0 = 0
+# Vertical
 Y1 = Y0 + RD
 Y2 = Y1 + 20
 Y3 = Y2 + 10
@@ -49,11 +52,16 @@ Y23 = Y9 + RD / 2
 Y24 = Y11 + AL / 2
 Y25 = Y13 + AL / 2
 Y26 = Y15 + RD / 2
+Y27 = Y0 + RD / 4
+Y28 = Y27 + RD / 7
+Y29 = Y28 + RD / 7
+Y30 = Y29 + RD / 10
 
 A1 = (X0, Y0)
 A2 = (X1, Y0)
 A3 = (X10, Y1)
 A4 = (X11, Y1)
+
 B1 = (X1, Y1)
 B2 = (X3, Y2)
 B3 = (X4, Y2)
@@ -122,6 +130,41 @@ K2 = (X2, Y13)
 K3 = (X2, Y14)
 K4 = (X1, Y14)
 
+# Main crossroads' corners
+L1 = (X3, Y27)
+L2 = (X4, Y28)
+L3 = (X5, Y29)
+L4 = (X6, Y30)
+L5 = (X0, Y1)
+L6 = (X11, Y4)
+L7 = (X0, Y7)
+L8 = (X11, Y7)
+L9 = (X0, Y8)
+L10 = (X11, Y8)
+L11 = (X0, Y9)
+L12 = (X11, Y9)
+L13 = (X0, Y10)
+L14 = (X11, Y10)
+L15 = (X0, Y15)
+L16 = (X11, Y15)
+L17 = (X1, Y16)
+L18 = (X3, Y16)
+L19 = (X4, Y16)
+L20 = (X5, Y16)
+L21 = (X6, Y16)
+L22 = (X8, Y16)
+L23 = (X9, Y16)
+L24 = (X10, Y16)
+
+# Alley crossroads' corners
+M1 = (X5, Y5)
+M2 = (X5, Y6)
+M3 = (X4, Y11)
+M4 = (X4, Y12)
+M5 = (X0, Y13)
+M6 = (X0, Y14)
+
+# Intersections
 O1 = (X12, Y17)
 O2 = (X13, Y18)
 O3 = (X14, Y19)
