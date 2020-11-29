@@ -5,9 +5,9 @@ import pygame as p
 from constants.board import *
 from constants.coordinates import CAR_INIT_X, CAR_INIT_Y
 from constants.styles import *
-from drawer import draw_car, draw_map
+from drawer import draw_map
 from helper import init_board
-from traffic import Car, Board
+from traffic import Car
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -26,7 +26,7 @@ class Game:
         p.display.set_caption(PROGRAM_TITLE)
 
     def start(self):
-        self.board=init_board()
+        self.board = init_board()
 
     def clear(self):
         self.screen.fill((0, 0, 0))
@@ -46,7 +46,9 @@ class Game:
     def draw(self):
         # self.screen.blit(self.map_surface, MAP_POSITION)
         draw_map(self.screen, COLOR_WHITE, 1)
-        draw_car(self.screen, self.car)
+        # draw_vertices(self.screen, self.board, COLOR_RED, VERTEX_RADIUS)
+        # draw_blocked_road(self.screen, (0, 1, 7, 8, 4, 5), self.board, COLOR_RED)
+        # draw_car(self.screen, self.car)
         p.display.update()
         fps_clock.tick(FPS)
 

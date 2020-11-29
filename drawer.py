@@ -136,3 +136,48 @@ def draw_car(surface, car):
             (CAR_WIDTH, CAR_HEIGHT)
         )
     )
+
+
+def draw_blocked_road(surface, path, board, color):
+    # Length of path (array of vertices)
+    length = len(path)
+    # Handle vertices from 1 to n-1
+    for i in range(1, length - 1):
+        v = board.vertices[path[i]]
+        for edge in v.edges:
+            if edge.neighbor != path[i - 1] and edge.neighbor != path[i + 1]:
+                p.draw.line(
+                    surface,
+                    color,
+                    edge.corners[0],
+                    edge.corners[1]
+                )
+    # Handle vertex 0
+    for edge in board.vertices[path[0]].edges:
+        if edge.neighbor != path[1]:
+            p.draw.line(
+                surface,
+                color,
+                edge.corners[0],
+                edge.corners[1]
+            )
+    # Handle vertex n
+    v = board.vertices[path[length - 1]]
+    for edge in v.edges:
+        if edge.neighbor != path[length - 2]:
+            p.draw.line(
+                surface,
+                color,
+                edge.corners[0],
+                edge.corners[1]
+            )
+
+
+def draw_vertices(surface, board, color, radius):
+    for v in list(board.vertices.values()):
+        p.draw.circle(
+            surface,
+            color,
+            v.center,
+            radius
+        )

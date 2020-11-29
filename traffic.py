@@ -31,8 +31,7 @@ class Edge:
 
 
 class Vertex:
-    def __init__(self, index, center, edges):
-        self.index = index
+    def __init__(self, center, edges):
         self.center = center
         self.edges = edges
 
