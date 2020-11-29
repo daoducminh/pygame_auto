@@ -6,7 +6,8 @@ from constants.board import *
 from constants.coordinates import CAR_INIT_X, CAR_INIT_Y
 from constants.styles import *
 from drawer import draw_car, draw_map
-from models.vehicle import Car
+from helper import init_board
+from traffic import Car, Board
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -18,13 +19,14 @@ class Game:
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
         # self.map_surface = p.Surface((MAP_WIDTH, MAP_HEIGHT))
+        self.board = None
         self.car = Car(CAR_INIT_X, CAR_INIT_Y, CAR_VELOCITY, CAR_TURN_RATE, CAR_ANGLE)
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
 
     def start(self):
-        pass
+        self.board=init_board()
 
     def clear(self):
         self.screen.fill((0, 0, 0))

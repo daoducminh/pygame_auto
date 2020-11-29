@@ -22,3 +22,21 @@ class Car:
 
     def turn_left(self):
         self.angle -= self.turn_rate
+
+
+class Edge:
+    def __init__(self, neighbor, corners):
+        self.neighbor = neighbor
+        self.corners = corners
+
+
+class Vertex:
+    def __init__(self, index, center, edges):
+        self.index = index
+        self.center = center
+        self.edges = edges
+
+
+class Board:
+    def __init__(self,vertices):
+        self.vertices = vertices
