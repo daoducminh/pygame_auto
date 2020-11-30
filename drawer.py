@@ -6,6 +6,8 @@ import pygame as p
 
 from constants.board import CAR_HEIGHT, CAR_WIDTH, CAR_IMAGE_PATH
 from constants.coordinates import *
+from constants.styles import COLOR_RED, COLOR_GREEN
+from sprites import VertexSprite
 
 CAR_IMAGE = p.image.load(CAR_IMAGE_PATH)
 
@@ -173,11 +175,18 @@ def draw_blocked_road(surface, path, board, color):
             )
 
 
-def draw_vertices(surface, board, color, radius):
+def draw_vertices(surface, board, radius):
     for v in list(board.vertices.values()):
         p.draw.circle(
             surface,
-            color,
+            COLOR_GREEN if v.is_picked else COLOR_RED,
             v.center,
             radius
         )
+
+
+def get_vertex_group(board):
+    sprite_list = []
+    for key, value in board.vertices.items():
+        sprite_list.append(VertexSprite(key, *value.center))
+    return p.sprite.Group(sprite_list)

@@ -4,4 +4,8 @@ from pygame.color import Color
 
 COLOR_WHITE = Color('white')
 COLOR_RED = Color('red')
-VERTEX_RADIUS = 5
+COLOR_GREEN = Color('green')
+COLOR_BLACK = Color('black')
+
+VERTEX_RADIUS = 10
+VERTEX_SIZE = VERTEX_RADIUS * 2
