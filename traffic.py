@@ -37,5 +37,5 @@ class Vertex:
 
 
 class Board:
-    def __init__(self,vertices):
+    def __init__(self, vertices):
         self.vertices = vertices

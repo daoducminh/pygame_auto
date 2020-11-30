@@ -24,6 +24,8 @@ setup(
         'python-dotenv',
         'pygame',
         'pygame_gui',
-        'pymunk'
+        'pymunk',
+        'networkx',
+        'matplotlib'
     ]
 )
