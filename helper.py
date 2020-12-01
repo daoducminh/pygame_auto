@@ -234,3 +234,11 @@ def init_graph(board):
 
 def find_shortest_path(graph, source, target):
     return dijkstra_path(graph, source, target)
+
+
+def draw_graph(graph):
+    pos = nx.get_node_attributes(graph, 'pos')
+    nx.draw(graph, pos=pos, with_labels=True)
+    labels = nx.get_edge_attributes(graph, 'weight')
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+    plt.savefig('test.png')
