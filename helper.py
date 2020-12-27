@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from math import floor, sqrt
-
+from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.algorithms.shortest_paths import dijkstra_path
 

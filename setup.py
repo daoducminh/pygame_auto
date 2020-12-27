@@ -26,6 +26,8 @@ setup(
         'pygame_gui',
         'pymunk',
         'networkx',
-        'matplotlib'
+        'matplotlib',
+        'pandas',
+        'sympy'
     ]
 )

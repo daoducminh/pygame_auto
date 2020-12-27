@@ -23,7 +23,13 @@ class Game:
         self.graph: Graph = init_graph(self.board)
         self.vertex_group: p.sprite.Group = get_vertex_group(self.board)
         self.moves = []
-        self.car = Car(CAR_INIT_X, CAR_INIT_Y, CAR_VELOCITY, CAR_TURN_RATE, CAR_ANGLE)
+        self.car = Car(
+            CAR_INIT_X,
+            CAR_INIT_Y,
+            CAR_VELOCITY,
+            CAR_TURN_RATE,
+            CAR_ANGLE
+        )
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
