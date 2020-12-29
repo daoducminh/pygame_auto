@@ -5,11 +5,11 @@ from networkx import Graph
 
 from constants.board import *
 from constants.coordinates import CAR_INIT_X, CAR_INIT_Y
-from constants.styles import *
-from drawer import draw_map, get_vertex_group, draw_blocked_road
-from helper import init_board, init_graph, find_shortest_path, init_data
-from traffic import Car, Board
 from constants.files import PICKLE_FILE
+from constants.styles import *
+from src.drawer import draw_map, get_vertex_group, draw_blocked_road
+from src.helper import init_board, init_graph, init_data, find_shortest_path
+from src.traffic import Car, Board
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -65,14 +65,14 @@ class Game:
 
     def draw(self):
         # self.screen.blit(self.map_surface, MAP_POSITION)
-        draw_map(self.screen, COLOR_WHITE, 1)
+        draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
         # draw_blocked_road(self.screen, (0, 1, 7, 8, 4, 5), self.board, COLOR_RED)
         # draw_car(self.screen, self.car)
 
-        # if len(self.moves) == 2:
-        #     path = find_shortest_path(self.graph, *self.moves)
-        #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
+        if len(self.moves) == 2:
+            path = find_shortest_path(self.graph, *self.moves)
+            draw_blocked_road(self.screen, path, self.board, COLOR_RED)
 
         self.vertex_group.draw(self.screen)
 

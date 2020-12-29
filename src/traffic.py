@@ -24,22 +24,30 @@ class Car:
         self.angle -= self.turn_rate
 
 
-class Edge:
-    def __init__(self, neighbor, corners, body, blocked):
+class Corner:
+    def __init__(self, neighbor, corners):
         self.neighbor = neighbor
         self.corners = corners
+
+
+class Edge:
+    def __init__(self, vertices, body, blocked):
+        self.vertices = vertices
         self.body = body
         self.blocked = blocked
 
 
 class Vertex:
-    def __init__(self, center, edges, body, blocked):
+    def __init__(self, center, corners, body, blocked, edges):
         self.center = center
-        self.edges = edges
+        self.corners = corners
         self.body = body
         self.blocked = blocked
+        self.edges = edges
 
 
 class Board:
-    def __init__(self, vertices):
+    def __init__(self, vertices, map_board):
         self.vertices = vertices
+        # self.edges = edges
+        self.map_board = map_board

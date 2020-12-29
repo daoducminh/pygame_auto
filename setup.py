@@ -28,6 +28,7 @@ setup(
         'networkx',
         'matplotlib',
         'pandas',
-        'sympy'
+        'sympy',
+        'numpy'
     ]
 )
