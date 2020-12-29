@@ -3,7 +3,6 @@ test*
 
 # IDE
 .vscode/
-.venv
 .idea/
 *.iml
 
