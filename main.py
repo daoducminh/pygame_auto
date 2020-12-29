@@ -67,9 +67,10 @@ class Game:
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
         # draw_blocked_road(self.screen, (0, 1, 7, 8, 4, 5), self.board, COLOR_RED)
         # draw_car(self.screen, self.car)
-        if len(self.moves) == 2:
-            path = find_shortest_path(self.graph, *self.moves)
-            draw_blocked_road(self.screen, path, self.board, COLOR_RED)
+
+        # if len(self.moves) == 2:
+        #     path = find_shortest_path(self.graph, *self.moves)
+        #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
 
         self.vertex_group.draw(self.screen)
 

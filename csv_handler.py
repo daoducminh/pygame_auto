@@ -44,7 +44,7 @@ class DataHandler:
             i['body'] = tuple(i['body'].split('|'))
             i['blocked'] = tuple(tuple(
                 j.split('-')) for j in i['blocked'].split('|')) if i['blocked'] else tuple()
-        a = {
+        data = {
             'axes': axes,
             'board': board,
             'coords': coords,
@@ -53,7 +53,7 @@ class DataHandler:
             'vertices': vertices
         }
         with open(filename, 'wb') as f:
-            dump(a, f)
+            dump(data, f)
 
 
 if __name__ == "__main__":

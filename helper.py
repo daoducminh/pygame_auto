@@ -4,9 +4,15 @@ from math import floor, sqrt
 from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.algorithms.shortest_paths import dijkstra_path
+from pickle import load
 
 from constants.coordinates import *
 from traffic import Vertex, Edge, Board
+
+
+def init_data(filename):
+    with open(filename, 'r') as f:
+        return load(f)
 
 
 def init_board():
