@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 from pickle import dump
 from constants import files
+from constants.names import *
 
 
 def generate_axes(filename):
     with open(filename, 'w') as f:
-        f.write('unit,value\n')
+        f.write('{0},{1}\n'.format(UNIT, VALUE))
         for i in range(17):
             f.write('X{0},{1}\n'.format(i, eval(f'X{i}')))
         for i in range(31):
@@ -23,37 +24,52 @@ class DataHandler:
         self.board_df = pd.read_csv(board)
 
     def to_pickle(self, filename):
+        # Axes
         axes = {
-            i['unit']: i['value'] for i in self.axes_df.to_dict(orient='records')
+            i[UNIT]: i[VALUE] for i in self.axes_df.to_dict(orient='records')
         }
+        # Coords
         coords = {
-            i['point']: (i['x'], i['y']) for i in self.coords_df.to_dict(orient='records')
+            i[POINT]: (i[X], i[Y]) for i in self.coords_df.to_dict(orient='records')
         }
-        board = tuple(tuple(i.split('|')) for i in self.board_df.to_list())
+        # Board
+        board = tuple(
+            tuple(i.split('|'))
+            for i in self.board_df.loc[:, 'path'].to_list()
+        )
         corners = tuple(self.corners_df.to_dict(orient='records'))
         for i in corners:
-            i['corners'] = tuple(i['corners'].split('|'))
+            i[CORNERS] = tuple(i[CORNERS].split('|'))
+        # Edges
         edges = tuple(self.edges_df.to_dict(orient='records'))
         for i in edges:
-            i['vertices'] = tuple(int(j) for j in i['vertices'].split('|'))
-            i['body'] = tuple(i['body'].split('|'))
-            i['blocked'] = tuple(tuple(j.split('-'))
-                                 for j in i['blocked'].split('|'))
-        vertices = tuple(self.vertices_df.to_dict(orient='records'))
+            i[VERTICES] = tuple(int(j) for j in i[VERTICES].split('|'))
+            i[BODY] = tuple(i[BODY].split('|'))
+            i[BLOCKED] = tuple(
+                tuple(j.split('-')) for j in i[BLOCKED].split('|')
+            )
+        # Vertices
+        vertices = tuple(self.vertices_df.replace(
+            np.NaN, False).to_dict(orient='records'))
         for i in vertices:
-            i['body'] = tuple(i['body'].split('|'))
-            i['blocked'] = tuple(tuple(
-                j.split('-')) for j in i['blocked'].split('|')) if i['blocked'] else tuple()
+            i[BODY] = tuple(i[BODY].split('|'))
+            i[BLOCKED] = tuple(tuple(
+                j.split('-')) for j in i[BLOCKED].split('|')) if i[BLOCKED] else tuple()
+
+        # Merge axes to coords
+        for k, v in coords.items():
+            coords[k] = (axes[v[0]], axes[v[1]])
+
         data = {
-            'axes': axes,
-            'board': board,
-            'coords': coords,
-            'corners': corners,
-            'edges': edges,
-            'vertices': vertices
+            BOARD: board,
+            COORDS: coords,
+            CORNERS: corners,
+            EDGES: edges,
+            VERTICES: vertices
         }
         with open(filename, 'wb') as f:
             dump(data, f)
+        return data
 
 
 if __name__ == "__main__":
@@ -66,4 +82,5 @@ if __name__ == "__main__":
         files.CORNERS,
         files.BOARD
     )
-    handler.to_pickle(files.PICKLE_FILE)
+    data = handler.to_pickle(files.PICKLE_FILE)
+    print(data)

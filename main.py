@@ -7,8 +7,9 @@ from constants.board import *
 from constants.coordinates import CAR_INIT_X, CAR_INIT_Y
 from constants.styles import *
 from drawer import draw_map, get_vertex_group, draw_blocked_road
-from helper import init_board, init_graph, find_shortest_path
+from helper import init_board, init_graph, find_shortest_path, init_data
 from traffic import Car, Board
+from constants.files import PICKLE_FILE
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -19,7 +20,8 @@ class Game:
         p.init()
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
-        self.board: Board = init_board()
+        self.data = init_data(PICKLE_FILE)
+        self.board: Board = init_board(self.data)
         self.graph: Graph = init_graph(self.board)
         self.vertex_group: p.sprite.Group = get_vertex_group(self.board)
         self.moves = []

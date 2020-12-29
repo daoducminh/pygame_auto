@@ -25,15 +25,19 @@ class Car:
 
 
 class Edge:
-    def __init__(self, neighbor, corners):
+    def __init__(self, neighbor, corners, body, blocked):
         self.neighbor = neighbor
         self.corners = corners
+        self.body = body
+        self.blocked = blocked
 
 
 class Vertex:
-    def __init__(self, center, edges):
+    def __init__(self, center, edges, body, blocked):
         self.center = center
         self.edges = edges
+        self.body = body
+        self.blocked = blocked
 
 
 class Board:
