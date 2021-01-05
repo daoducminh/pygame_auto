@@ -2,6 +2,17 @@
 
 from math import sin, cos, floor
 
+import matplotlib.path as plt_path
+import numpy as np
+from sympy import Line, Point
+
+from constants.names import BODY
+
+
+def contain_point(body, point):
+    box = plt_path.Path(np.array(body))
+    return box.contains_point(point)
+
 
 class Car:
     def __init__(self, x, y, velocity, turn_rate, angle):
@@ -35,6 +46,7 @@ class Edge:
         self.vertices = vertices
         self.body = body
         self.blocked = blocked
+        self.lines = [Line(Point(*i[0]), Point(*i[1])) for i in self.blocked]
 
 
 class Vertex:
@@ -44,10 +56,22 @@ class Vertex:
         self.body = body
         self.blocked = blocked
         self.edges = edges
+        self.lines = [Line(Point(*i[0]), Point(*i[1]))
+                      for i in self.blocked] if self.blocked else None
 
 
 class Board:
-    def __init__(self, vertices, map_board):
+    def __init__(self, vertices, edges, map_board):
         self.vertices = vertices
-        # self.edges = edges
+        self.edges = edges
         self.map_board = map_board
+
+    def get_location(self, x, y):
+        # p = Point(x, y)
+        for k, v in self.vertices.items():
+            if contain_point(v.body, (x, y)):
+                return k, v
+        for e in self.edges:
+            if contain_point(e[BODY], (x, y)):
+                return e
+        return None

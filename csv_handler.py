@@ -1,8 +1,29 @@
-import pandas as pd
-import numpy as np
 from pickle import dump
+from math import floor, sqrt
+import numpy as np
+import pandas as pd
+import networkx as nx
+from matplotlib import pyplot as plt
 from constants import files
 from constants.names import *
+from src.traffic import Vertex, Corner, Board
+
+
+def to_pickle(data, filename):
+    with open(filename, 'wb') as f:
+        dump(data, f)
+
+
+def calculate_distance(a, b):
+    return floor(sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2))
+
+
+def draw_graph(graph):
+    pos = nx.get_node_attributes(graph, 'pos')
+    nx.draw(graph, pos=pos, with_labels=True)
+    labels = nx.get_edge_attributes(graph, 'weight')
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+    plt.savefig('test.png')
 
 
 def generate_axes(filename):
@@ -14,6 +35,85 @@ def generate_axes(filename):
             f.write('Y{0},{1}\n'.format(i, eval(f'Y{i}')))
 
 
+def get_board(data):
+    coords = data[COORDS]
+    # Vertices and edges data
+    vertices = data[VERTICES]
+    edges = data[EDGES]
+    corners = data[CORNERS]
+    # Map board
+    board = data[BOARD]
+
+    rs = {}
+
+    # Map board
+    map_board = []
+    for b in board:
+        map_board.append(tuple(
+            coords[i] for i in b
+        ))
+
+    # Edges
+    for e in edges:
+        e[BODY] = tuple(coords[i] for i in e[BODY])
+
+        blocked = []
+        for b in e[BLOCKED]:
+            blocked.append(tuple(
+                coords[i] for i in b
+            ))
+        e[BLOCKED] = tuple(blocked)
+
+    # Vertices
+    for v in vertices:
+        v_index = v[INDEX]
+        cs = []
+
+        for c in corners:
+            if v_index == c[FROM]:
+                cs.append(Corner(
+                    c[TO],
+                    tuple(coords[i] for i in c[CORNERS])
+                ))
+
+        blocked = []
+        for b in v[BLOCKED]:
+            blocked.append(tuple(
+                coords[i] for i in b
+            ))
+
+        es = []
+        for e in edges:
+            if v_index in e[VERTICES]:
+                es.append(e)
+
+        rs[v_index] = Vertex(
+            center=coords[v[CENTER]],
+            corners=tuple(cs),
+            body=tuple(coords[i] for i in v[BODY]),
+            blocked=blocked,
+            edges=tuple(es)
+        )
+    return Board(rs, edges, tuple(map_board))
+
+
+def get_graph(board):
+    g = nx.Graph()
+    vertices = board.vertices
+
+    for key, value in vertices.items():
+        g.add_node(key, pos=value.center)
+        for e in value.corners:
+            g.add_edge(key, e.neighbor)
+    for e in list(g.edges):
+        u, v = e
+        g.edges[u, v]['weight'] = calculate_distance(
+            vertices[u].center,
+            vertices[v].center
+        )
+    return g
+
+
 class DataHandler:
     def __init__(self, axes, coords, vertices, edges, corners, board):
         self.axes_df = pd.read_csv(axes)
@@ -23,7 +123,7 @@ class DataHandler:
         self.corners_df = pd.read_csv(corners)
         self.board_df = pd.read_csv(board)
 
-    def to_pickle(self, filename):
+    def preprocess(self):
         # Axes
         axes = {
             i[UNIT]: i[VALUE] for i in self.axes_df.to_dict(orient='records')
@@ -67,8 +167,6 @@ class DataHandler:
             EDGES: edges,
             VERTICES: vertices
         }
-        with open(filename, 'wb') as f:
-            dump(data, f)
         return data
 
 
@@ -82,5 +180,12 @@ if __name__ == "__main__":
         files.CORNERS,
         files.BOARD
     )
-    data = handler.to_pickle(files.PICKLE_FILE)
-    print(data)
+
+    data = handler.preprocess()
+    to_pickle(data, files.DATA_FILE)
+
+    board = get_board(data)
+    to_pickle(board, files.BOARD_FILE)
+
+    graph = get_graph(board)
+    to_pickle(graph, files.GRAPH_FILE)

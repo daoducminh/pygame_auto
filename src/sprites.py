@@ -1,8 +1,40 @@
 # -*- coding: utf-8 -*-
+from math import degrees
 
 import pygame as p
 
 from constants.styles import *
+
+
+class CarSprite(p.sprite.Sprite):
+    def __init__(
+            self, position, direction, car_size,
+            speed, angle, angle_speed, car_image
+    ):
+        super(CarSprite, self).__init__()
+        self.original_image = p.Surface(car_size)
+        car = p.transform.rotate(
+            p.transform.scale(car_image, car_size),
+            180 - degrees(angle)
+        )
+        self.original_image.blit(car, p.Rect((0, 0), car_size))
+        self.image = self.original_image
+        self.rect = self.image.get_rect(center=position)
+        self.position = p.Vector2(position)
+        self.direction = p.Vector2(direction)
+        self.speed = speed
+        self.angle = angle
+        self.angle_speed = angle_speed
+
+    def update(self):
+        # Rotate the direction vector and then the image.
+        self.direction.rotate_ip_rad(self.angle_speed)
+        self.angle += self.angle_speed
+        self.image = p.transform.rotate(self.original_image, -degrees(self.angle))
+        self.rect = self.image.get_rect(center=self.rect.center)
+        # Update the position vector and the rect.
+        self.position += self.direction * self.speed
+        self.rect.center = self.position
 
 
 class VertexSprite(p.sprite.Sprite):

@@ -4,11 +4,8 @@ from math import degrees
 
 import pygame as p
 
-from constants.board import CAR_HEIGHT, CAR_WIDTH, CAR_IMAGE_PATH
 from constants.styles import COLOR_RED, COLOR_GREEN
 from .sprites import VertexSprite
-
-CAR_IMAGE = p.image.load(CAR_IMAGE_PATH)
 
 
 def draw_map(surface, map_board, color, width):
@@ -22,21 +19,21 @@ def draw_map(surface, map_board, color, width):
         )
 
 
-def draw_car(surface, car):
-    car_sprite = p.transform.rotate(
-        p.transform.scale(
-            CAR_IMAGE,
-            (CAR_WIDTH, CAR_HEIGHT)
-        ),
-        180 - degrees(car.angle)
-    )
-    surface.blit(
-        car_sprite,
-        p.Rect(
-            (car.x, car.y),
-            (CAR_WIDTH, CAR_HEIGHT)
-        )
-    )
+# def draw_car(surface, car):
+#     car_sprite = p.transform.rotate(
+#         p.transform.scale(
+#             CAR_IMAGE,
+#             (CAR_WIDTH, CAR_HEIGHT)
+#         ),
+#         180 - degrees(car.angle)
+#     )
+#     surface.blit(
+#         car_sprite,
+#         p.Rect(
+#             (car.x, car.y),
+#             (CAR_WIDTH, CAR_HEIGHT)
+#         )
+#     )
 
 
 def draw_blocked_road(surface, path, board, color):
