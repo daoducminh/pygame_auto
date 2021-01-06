@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from sympy import Segment
+
 
 class Corner:
     def __init__(self, neighbor, corners):
@@ -27,6 +29,9 @@ class Vertex:
         self.edges = edges
         self.segments = segments
         self.box = box
+
+    def add_segment(self, corner):
+        self.segments.append(Segment(*corner))
 
 
 class Board:

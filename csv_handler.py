@@ -73,8 +73,8 @@ def get_board(data):
         edges.append(Edge(
             vertices=e[VERTICES],
             body=body,
-            blocked=tuple(blocked),
-            segments=tuple(segments),
+            blocked=blocked,
+            segments=segments,
             box=plt_path.Path(np.array(body))
         ))
 
@@ -109,9 +109,9 @@ def get_board(data):
             center=coords[v[CENTER]],
             corners=tuple(cs),
             body=body,
-            blocked=tuple(blocked) if blocked else None,
+            blocked=blocked,
             edges=tuple(es),
-            segments=tuple(segments) if segments else None,
+            segments=segments,
             box=plt_path.Path(np.array(body))
         )
     return Board(vertices, edges, tuple(map_board))

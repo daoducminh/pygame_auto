@@ -7,7 +7,7 @@ from constants.board import *
 from constants.car import *
 from constants.files import DATA_FILE, BOARD_FILE, GRAPH_FILE
 from constants.styles import *
-from src.drawer import draw_map, get_traffic_light_group
+from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road
 from src.helper import read_data
 from src.sprites import CarSprite
 from src.traffic import Board
@@ -77,16 +77,16 @@ class Game:
         # self.screen.blit(self.map_surface, MAP_POSITION)
         draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
-        # draw_blocked_road(self.screen, (0, 1, 7, 8, 4, 5), self.board, COLOR_RED)
-        # self.car_group.update()
-        # self.car_group.draw(self.screen)
+        draw_blocked_road(self.screen, (0, 1, 2, 3), self.board, COLOR_RED)
+        self.car_group.update()
+        self.car_group.draw(self.screen)
 
         # if len(self.moves) == 2:
         #     path = find_shortest_path(self.graph, *self.moves)
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
-        self.traffic_light_group.update()
-        self.traffic_light_group.draw(self.screen)
+        # self.traffic_light_group.update()
+        # self.traffic_light_group.draw(self.screen)
 
 
 if __name__ == "__main__":
