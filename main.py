@@ -7,14 +7,15 @@ from constants.board import *
 from constants.car import *
 from constants.files import DATA_FILE, BOARD_FILE, GRAPH_FILE
 from constants.styles import *
-from src.drawer import draw_map, get_vertex_group, draw_blocked_road
-from src.helper import read_data, find_shortest_path
+from src.drawer import draw_map, get_traffic_light_group
+from src.helper import read_data
 from src.sprites import CarSprite
 from src.traffic import Board
 
 FPS = 30
 fps_clock = p.time.Clock()
 CAR_IMAGE = p.image.load(CAR_IMAGE_PATH)
+
 
 class Game:
     def __init__(self):
@@ -24,14 +25,13 @@ class Game:
         self.data = read_data(DATA_FILE)
         self.board: Board = read_data(BOARD_FILE)
         self.graph: Graph = read_data(GRAPH_FILE)
-        self.vertex_group: p.sprite.Group = get_vertex_group(self.board)
+        self.traffic_light_group: p.sprite.Group = get_traffic_light_group(self.board)
         self.car = CarSprite(
             CAR_INIT_POS,
             CAR_DIRECTION,
             CAR_SIZE,
-            0,
-            0,
-            0,
+            CAR_SPEED,
+            CAR_ANGLE_SPEED,
             CAR_IMAGE
         )
         self.car_group = p.sprite.Group(self.car)
@@ -45,32 +45,25 @@ class Game:
 
     def reset_state(self):
         self.moves.clear()
-        for s in self.vertex_group.sprites():
+        for s in self.traffic_light_group.sprites():
             s.reset()
 
     def handle_events(self, event_list):
         for event in event_list:
             if event.type == p.KEYDOWN:
                 if event.key == p.K_UP:
-                    self.car.speed = CAR_SPEED
+                    self.car.accelerate(2)
                 elif event.key == p.K_DOWN:
-                    self.car.speed = -CAR_SPEED
+                    self.car.accelerate(-2)
                 elif event.key == p.K_LEFT:
-                    self.car.angle_speed = -CAR_ANGLE_SPEED
+                    self.car.turn(1)
                 elif event.key == p.K_RIGHT:
-                    self.car.angle_speed = CAR_ANGLE_SPEED
-            elif event.type == p.KEYUP:
-                if event.key == p.K_LEFT:
-                    self.car.angle_speed = 0
-                elif event.key == p.K_RIGHT:
-                    self.car.angle_speed = 0
-                elif event.key == p.K_UP:
-                    self.car.speed = 0
-                elif event.key == p.K_DOWN:
-                    self.car.speed = 0
+                    self.car.turn(-1)
+                b = g.board.get_location(self.car.pos)
+                print(self.car.get_all_distance(b))
         #     if event.type == p.MOUSEBUTTONDOWN:
         #         a = p.mouse.get_pos()
-        #         b = g.board.get_location(*a)
+        #         b = g.board.get_location(a)
         #         print(b)
         #         if len(self.moves) < 2:
         #             self.vertex_group.update(event_list, self.moves)
@@ -85,14 +78,15 @@ class Game:
         draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
         # draw_blocked_road(self.screen, (0, 1, 7, 8, 4, 5), self.board, COLOR_RED)
-        self.car_group.update()
-        self.car_group.draw(self.screen)
+        # self.car_group.update()
+        # self.car_group.draw(self.screen)
 
         # if len(self.moves) == 2:
         #     path = find_shortest_path(self.graph, *self.moves)
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
-        # self.vertex_group.draw(self.screen)
+        self.traffic_light_group.update()
+        self.traffic_light_group.draw(self.screen)
 
 
 if __name__ == "__main__":

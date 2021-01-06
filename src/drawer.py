@@ -5,7 +5,8 @@ from math import degrees
 import pygame as p
 
 from constants.styles import COLOR_RED, COLOR_GREEN
-from .sprites import VertexSprite
+from constants.board import TRAFFIC_LIGHT_EXCLUDE
+from .sprites import TrafficLightSprite
 
 
 def draw_map(surface, map_board, color, width):
@@ -81,8 +82,9 @@ def draw_vertices(surface, board, radius):
         )
 
 
-def get_vertex_group(board):
+def get_traffic_light_group(board):
     sprite_list = []
     for key, value in board.vertices.items():
-        sprite_list.append(VertexSprite(key, *value.center))
+        if key not in TRAFFIC_LIGHT_EXCLUDE:
+            sprite_list.append(TrafficLightSprite(key, *value.center))
     return p.sprite.Group(sprite_list)

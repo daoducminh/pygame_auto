@@ -1,12 +1,16 @@
-from pickle import dump
 from math import floor, sqrt
+from pickle import dump
+
+import matplotlib.path as plt_path
+import networkx as nx
 import numpy as np
 import pandas as pd
-import networkx as nx
 from matplotlib import pyplot as plt
+from sympy import Segment
+
 from constants import files
 from constants.names import *
-from src.traffic import Vertex, Corner, Board
+from src.traffic import Vertex, Corner, Board, Edge
 
 
 def to_pickle(data, filename):
@@ -38,38 +42,48 @@ def generate_axes(filename):
 def get_board(data):
     coords = data[COORDS]
     # Vertices and edges data
-    vertices = data[VERTICES]
-    edges = data[EDGES]
-    corners = data[CORNERS]
+    vertices_data = data[VERTICES]
+    edges_data = data[EDGES]
+    corners_data = data[CORNERS]
     # Map board
-    board = data[BOARD]
+    board_data = data[BOARD]
 
-    rs = {}
+    vertices = {}
 
     # Map board
     map_board = []
-    for b in board:
+    for b in board_data:
         map_board.append(tuple(
             coords[i] for i in b
         ))
 
     # Edges
-    for e in edges:
-        e[BODY] = tuple(coords[i] for i in e[BODY])
+    edges = []
+    for e in edges_data:
+        body = tuple(coords[i] for i in e[BODY])
 
         blocked = []
+        segments = []
         for b in e[BLOCKED]:
-            blocked.append(tuple(
+            t = tuple(
                 coords[i] for i in b
-            ))
-        e[BLOCKED] = tuple(blocked)
+            )
+            blocked.append(t)
+            segments.append(Segment(*t))
+        edges.append(Edge(
+            vertices=e[VERTICES],
+            body=body,
+            blocked=tuple(blocked),
+            segments=tuple(segments),
+            box=plt_path.Path(np.array(body))
+        ))
 
     # Vertices
-    for v in vertices:
+    for v in vertices_data:
         v_index = v[INDEX]
         cs = []
 
-        for c in corners:
+        for c in corners_data:
             if v_index == c[FROM]:
                 cs.append(Corner(
                     c[TO],
@@ -77,24 +91,30 @@ def get_board(data):
                 ))
 
         blocked = []
+        segments = []
         for b in v[BLOCKED]:
-            blocked.append(tuple(
+            t = tuple(
                 coords[i] for i in b
-            ))
+            )
+            blocked.append(t)
+            segments.append(Segment(*t))
 
         es = []
         for e in edges:
-            if v_index in e[VERTICES]:
+            if v_index in e.vertices:
                 es.append(e)
+        body = tuple(coords[i] for i in v[BODY])
 
-        rs[v_index] = Vertex(
+        vertices[v_index] = Vertex(
             center=coords[v[CENTER]],
             corners=tuple(cs),
-            body=tuple(coords[i] for i in v[BODY]),
-            blocked=blocked,
-            edges=tuple(es)
+            body=body,
+            blocked=tuple(blocked) if blocked else None,
+            edges=tuple(es),
+            segments=tuple(segments) if segments else None,
+            box=plt_path.Path(np.array(body))
         )
-    return Board(rs, edges, tuple(map_board))
+    return Board(vertices, edges, tuple(map_board))
 
 
 def get_graph(board):

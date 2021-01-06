@@ -7,3 +7,5 @@ MAP_HEIGHT = 1100
 
 ICON_PATH = 'images/icon.png'
 PROGRAM_TITLE = 'PyGame Self Driving'
+
+TRAFFIC_LIGHT_EXCLUDE = (4, 5, 16, 17, 18, 19)
