@@ -43,7 +43,7 @@ class Board:
     def get_location(self, pos):
         for k, v in self.vertices.items():
             if v.box.contains_point(pos):
-                return v
+                return k, v
         for e in self.edges:
             if e.box.contains_point(pos):
                 return e

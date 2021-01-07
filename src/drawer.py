@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from math import degrees
-
 import pygame as p
 
-from constants.styles import COLOR_RED, COLOR_GREEN
 from constants.board import TRAFFIC_LIGHT_EXCLUDE
-from .sprites import TrafficLightSprite
+from constants.styles import COLOR_RED, COLOR_GREEN
+from .sprites import TrafficLightSprite, VertexSprite
 
 
 def draw_map(surface, map_board, color, width):
@@ -53,7 +51,7 @@ def draw_blocked_road(surface, path, board, color):
                 )
                 v.add_segment(edge.corners)
     # Handle vertex 0
-    v=board.vertices[path[0]]
+    v = board.vertices[path[0]]
     for edge in v.corners:
         if edge.neighbor != path[1]:
             p.draw.line(
@@ -77,13 +75,20 @@ def draw_blocked_road(surface, path, board, color):
 
 
 def draw_vertices(surface, board, radius):
-    for v in list(board.values()):
+    for v in list(board.vertices.values()):
         p.draw.circle(
             surface,
             COLOR_GREEN if v.is_picked else COLOR_RED,
             v.center,
             radius
         )
+
+
+def get_vertex_group(board):
+    sprite_list = []
+    for key, value in board.vertices.items():
+        sprite_list.append(VertexSprite(key, *value.center))
+    return p.sprite.Group(sprite_list)
 
 
 def get_traffic_light_group(board):

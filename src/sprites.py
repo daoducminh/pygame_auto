@@ -5,9 +5,10 @@ import pygame as p
 from sympy import Ray, Point
 
 from constants.styles import *
+from src.traffic import Edge
 
-RED_TIME = 90
-GREEN_TIME = 90
+RED_TIME = 10
+GREEN_TIME = 10
 PERIOD_TIME = RED_TIME + GREEN_TIME
 
 
@@ -37,7 +38,7 @@ class CarSprite(p.sprite.Sprite):
         self.pos = position
 
     def update(self):
-        self.accelerate(3)
+        self.accelerate(1)
         self.rect.center = self.position
 
     def update_rays(self):
@@ -71,7 +72,6 @@ class CarSprite(p.sprite.Sprite):
         self.pos = (self.position.x, self.position.y)
         self.pos_point = Point(self.pos)
         self.update_rays()
-        # print(self.pos)
 
     def turn(self, factor):
         self.direction.rotate_ip(-factor * self.angle_speed)
@@ -79,7 +79,6 @@ class CarSprite(p.sprite.Sprite):
         self.image = p.transform.rotate(self.original_image, -self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
         self.update_rays()
-        # print(self.angle)
 
 
 class TrafficLightSprite(p.sprite.Sprite):
@@ -126,3 +125,54 @@ class TrafficLightSprite(p.sprite.Sprite):
         elif self.time == RED_TIME:
             self.is_green = False
         self.image = self.green_light if self.is_green else self.red_light
+
+
+class VertexSprite(p.sprite.Sprite):
+    def __init__(self, index, x, y):
+        super().__init__()
+
+        self.clicked = False
+        self.index = index
+
+        self.original_image = p.Surface((VERTEX_SIZE, VERTEX_SIZE))
+        p.draw.circle(
+            self.original_image,
+            COLOR_RED,
+            (VERTEX_RADIUS, VERTEX_RADIUS),
+            VERTEX_RADIUS
+        )
+
+        self.clicked_image = p.Surface((VERTEX_SIZE, VERTEX_SIZE))
+        p.draw.circle(
+            self.clicked_image,
+            COLOR_GREEN,
+            (VERTEX_RADIUS, VERTEX_RADIUS),
+            VERTEX_RADIUS
+        )
+
+        self.background = p.Surface((VERTEX_SIZE, VERTEX_SIZE))
+        p.draw.circle(
+            self.background,
+            COLOR_BLACK,
+            (VERTEX_RADIUS, VERTEX_RADIUS),
+            VERTEX_RADIUS
+        )
+
+        self.image = self.original_image
+        self.rect = self.image.get_rect(center=(x, y))
+
+    def hide(self):
+        self.image = self.background
+
+    def reset(self):
+        self.image = self.original_image
+        self.clicked = False
+
+    def update(self, event_list, moves):
+        for e in event_list:
+            if e.type == p.MOUSEBUTTONDOWN:
+                if self.rect.collidepoint(e.pos):
+                    self.clicked = not self.clicked
+                    moves.append(self.index)
+                    print(f'Click {self.index}')
+        self.image = self.clicked_image if self.clicked else self.original_image

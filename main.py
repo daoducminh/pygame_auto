@@ -10,10 +10,10 @@ from constants.styles import *
 from fuzziness.fuzzification import get_deviation_rules
 from fuzziness.inference.speed import SpeedDeduction
 from fuzziness.inference.steering import SteeringDeduction
-from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road
-from src.helper import read_data
+from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road, get_vertex_group
+from src.helper import read_data, find_shortest_path
 from src.sprites import CarSprite
-from src.traffic import Board, Vertex, Edge
+from src.traffic import Board
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -25,19 +25,14 @@ class Game:
         p.init()
         self.screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.running = True
+        self.car_running = False
         self.data = read_data(DATA_FILE)
         self.board: Board = read_data(BOARD_FILE)
         self.graph: Graph = read_data(GRAPH_FILE)
         self.traffic_light_group: p.sprite.Group = get_traffic_light_group(self.board)
-        self.car = CarSprite(
-            CAR_INIT_POS,
-            CAR_DIRECTION,
-            CAR_SIZE,
-            CAR_SPEED,
-            CAR_ANGLE_SPEED,
-            CAR_IMAGE
-        )
-        self.car_group = p.sprite.Group(self.car)
+        self.car = None
+        self.car_group = None
+        self.vertex_group: p.sprite.Group = get_vertex_group(self.board)
         self.moves = []
         icon = p.image.load(ICON_PATH)
         p.display.set_icon(icon)
@@ -45,6 +40,18 @@ class Game:
 
         self.steering = SteeringDeduction(STEERING_FILE)
         self.speed = SpeedDeduction(SPEED_FILE)
+        self.path = None
+
+    def init_car(self, pos):
+        self.car = CarSprite(
+            pos,
+            CAR_DIRECTION,
+            CAR_SIZE,
+            CAR_SPEED,
+            CAR_ANGLE_SPEED,
+            CAR_IMAGE
+        )
+        self.car_group = p.sprite.Group(self.car)
 
     def clear_screen(self):
         self.screen.fill(0)
@@ -54,7 +61,7 @@ class Game:
         for s in self.traffic_light_group.sprites():
             s.reset()
 
-    def handle_car(self):
+    def handle_car_turn(self):
         # pos = g.board.get_location(self.car.pos)
         # if isinstance(pos, Vertex):
         #     print('Vertex')
@@ -72,47 +79,55 @@ class Game:
             weight_total += weight
         a = angle_total / weight_total
         car_turn = 90 - a + self.car.angle
-        print(car_turn)
         self.car.turn(car_turn)
 
-    def handle_events(self, event_list):
-        for event in event_list:
-            if event.type == p.KEYDOWN:
-                if event.key == p.K_UP:
-                    self.car.accelerate(2)
-                elif event.key == p.K_DOWN:
-                    self.car.accelerate(-2)
-                elif event.key == p.K_LEFT:
-                    self.car.turn(1)
-                elif event.key == p.K_RIGHT:
-                    self.car.turn(-1)
+    def handle_car_speed(self):
+        pos = g.board.get_location(self.car.pos)
 
-        #     if event.type == p.MOUSEBUTTONDOWN:
-        #         a = p.mouse.get_pos()
-        #         b = g.board.get_location(a)
-        #         print(b)
-        #         if len(self.moves) < 2:
-        #             self.vertex_group.update(event_list, self.moves)
-        #             if len(self.moves) == 2:
-        #                 print(self.moves)
-        #                 for s in self.vertex_group.sprites():
-        #                     if not s.clicked:
-        #                         s.hide()
+    def handle_events(self, event_list):
+        pass
+        for event in event_list:
+            #     if event.type == p.KEYDOWN:
+            #         if event.key == p.K_UP:
+            #             self.car.accelerate(2)
+            #         elif event.key == p.K_DOWN:
+            #             self.car.accelerate(-2)
+            #         elif event.key == p.K_LEFT:
+            #             self.car.turn(1)
+            #         elif event.key == p.K_RIGHT:
+            #             self.car.turn(-1)
+
+            if event.type == p.MOUSEBUTTONDOWN:
+                if len(self.moves) < 2:
+                    self.vertex_group.update(event_list, self.moves)
+                    if len(self.moves) == 2:
+                        self.car_running = True
+                        for s in self.vertex_group.sprites():
+                            s.hide()
 
     def draw(self):
         # self.screen.blit(self.map_surface, MAP_POSITION)
         draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
-        draw_blocked_road(self.screen, (0, 1, 7, 6), self.board, COLOR_RED)
-        self.car_group.update()
-        self.car_group.draw(self.screen)
+
+        # draw_blocked_road(self.screen, (0, 1, 7, 6), self.board, COLOR_RED)
 
         # if len(self.moves) == 2:
         #     path = find_shortest_path(self.graph, *self.moves)
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
-        # self.traffic_light_group.update()
-        # self.traffic_light_group.draw(self.screen)
+
+        if len(self.moves) == 2:
+            self.path = find_shortest_path(self.graph, *self.moves)
+            draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+            pos = self.board.vertices[self.path[0]].center
+            self.init_car(pos)
+
+        self.vertex_group.draw(self.screen)
+
+        if self.car_running:
+            self.traffic_light_group.update()
+            self.traffic_light_group.draw(self.screen)
 
 
 if __name__ == "__main__":
@@ -129,7 +144,10 @@ if __name__ == "__main__":
         g.handle_events(events)
         g.clear_screen()
         g.draw()
-        g.handle_car()
+        if g.car_running:
+            g.handle_car_turn()
+            g.car_group.update()
+            g.car_group.draw(g.screen)
 
         p.display.flip()
         fps_clock.tick(FPS)

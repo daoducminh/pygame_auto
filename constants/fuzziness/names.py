@@ -1,6 +1,6 @@
-DISTANCE_NEAR = "near"
-DISTANCE_MEDIUM = "medium"
-DISTANCE_FAR = "far"
+NEAR = "near"
+MEDIUM = "medium"
+FAR = "far"
 
 LEFT = 'left'
 RIGHT = 'right'
@@ -13,6 +13,6 @@ LESS_RED = "less_red"
 GREEN = "green"
 LESS_GREEN = "less_green"
 
-MEDIUM = "medium"
+NORMAL = 'normal'
 SLOW = "slow"
 STOP = "stop"

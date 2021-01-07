@@ -3,5 +3,5 @@ CAR_DIRECTION = (1, 0)
 
 CAR_SIZE = (12, 9)
 CAR_IMAGE_PATH = 'images/car.png'
-CAR_SPEED = 5
+CAR_SPEED = 15
 CAR_ANGLE_SPEED = 1
