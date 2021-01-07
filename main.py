@@ -5,12 +5,15 @@ from networkx import Graph
 
 from constants.board import *
 from constants.car import *
-from constants.files import DATA_FILE, BOARD_FILE, GRAPH_FILE
+from constants.files import DATA_FILE, BOARD_FILE, GRAPH_FILE, STEERING_FILE, SPEED_FILE
 from constants.styles import *
+from fuzziness.fuzzification import get_deviation_rules
+from fuzziness.inference.speed import SpeedDeduction
+from fuzziness.inference.steering import SteeringDeduction
 from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road
 from src.helper import read_data
 from src.sprites import CarSprite
-from src.traffic import Board
+from src.traffic import Board, Vertex, Edge
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -40,6 +43,9 @@ class Game:
         p.display.set_icon(icon)
         p.display.set_caption(PROGRAM_TITLE)
 
+        self.steering = SteeringDeduction(STEERING_FILE)
+        self.speed = SpeedDeduction(SPEED_FILE)
+
     def clear_screen(self):
         self.screen.fill(0)
 
@@ -47,6 +53,27 @@ class Game:
         self.moves.clear()
         for s in self.traffic_light_group.sprites():
             s.reset()
+
+    def handle_car(self):
+        # pos = g.board.get_location(self.car.pos)
+        # if isinstance(pos, Vertex):
+        #     print('Vertex')
+        # if isinstance(pos, Edge):
+        #     print('Edge')
+        l, r, f = self.car.get_all_distance(self.board)
+        dev = l / (l + r)
+        rules = get_deviation_rules(dev)
+        angle_total = 0
+        weight_total = 0
+        for rule in rules:
+            label, args, min_arg = self.steering.deduce(rule)
+            angle, weight = self.steering.calculate(label, args, min_arg)
+            angle_total += angle * weight
+            weight_total += weight
+        a = angle_total / weight_total
+        car_turn = 90 - a + self.car.angle
+        print(car_turn)
+        self.car.turn(car_turn)
 
     def handle_events(self, event_list):
         for event in event_list:
@@ -59,8 +86,7 @@ class Game:
                     self.car.turn(1)
                 elif event.key == p.K_RIGHT:
                     self.car.turn(-1)
-                b = g.board.get_location(self.car.pos)
-                print(self.car.get_all_distance(b))
+
         #     if event.type == p.MOUSEBUTTONDOWN:
         #         a = p.mouse.get_pos()
         #         b = g.board.get_location(a)
@@ -77,7 +103,7 @@ class Game:
         # self.screen.blit(self.map_surface, MAP_POSITION)
         draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
         # draw_vertices(self.screen, self.board, VERTEX_RADIUS)
-        draw_blocked_road(self.screen, (0, 1, 2, 3), self.board, COLOR_RED)
+        draw_blocked_road(self.screen, (0, 1, 7, 6), self.board, COLOR_RED)
         self.car_group.update()
         self.car_group.draw(self.screen)
 
@@ -103,6 +129,7 @@ if __name__ == "__main__":
         g.handle_events(events)
         g.clear_screen()
         g.draw()
+        g.handle_car()
 
         p.display.flip()
         fps_clock.tick(FPS)

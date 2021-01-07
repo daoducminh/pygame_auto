@@ -20,15 +20,13 @@ setup(
     install_requires=[
         'pylint',
         'autopep8',
-        'rope',
-        'python-dotenv',
         'pygame',
         'pygame_gui',
-        'pymunk',
         'networkx',
         'matplotlib',
         'pandas',
         'sympy',
-        'numpy'
+        'numpy',
+        'scipy'
     ]
 )
