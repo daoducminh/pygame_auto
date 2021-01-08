@@ -11,9 +11,9 @@ from fuzziness.fuzzification import get_deviation_rules
 from fuzziness.inference.speed import SpeedDeduction
 from fuzziness.inference.steering import SteeringDeduction
 from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road, get_vertex_group
-from src.helper import read_data, find_shortest_path
+from src.helper import read_data, handle_angle, find_shortest_path
 from src.sprites import CarSprite
-from src.traffic import Board
+from src.traffic import Board, Vertex
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -41,17 +41,49 @@ class Game:
         self.steering = SteeringDeduction(STEERING_FILE)
         self.speed = SpeedDeduction(SPEED_FILE)
         self.path = None
+        self.current_vertex = None
+        self.current_sector = None
+        self.next_sector = None
+        self.cur_path_index = None
+
+    def _(self, angle):
+        car_angle = 90 - angle
+        if self.cur_path_index < len(self.path) - 1:
+            i1 = self.path[self.cur_path_index]
+            i2 = self.path[self.cur_path_index + 1]
+            v1 = self.board.vertices[i1]
+            v2 = self.board.vertices[i2]
+            # start = v1.center
+            start = self.car.pos
+            next_p = v2.center
+            direction = (next_p[0] - start[0], next_p[1] - start[1])
+            dir_vector = p.Vector2(*direction).normalize()
+            a = dir_vector.angle_to(self.car.direction)
+            delta = abs(a - car_angle)
+            if delta > THRESHOLD:
+                return handle_angle(a)
+            else:
+                return car_angle
+        else:
+            return car_angle
 
     def init_car(self, pos):
+        start = self.board.vertices[self.path[0]].center
+        next_p = self.board.vertices[self.path[1]].center
+        direction = (next_p[0] - start[0], next_p[1] - start[1])
         self.car = CarSprite(
             pos,
-            CAR_DIRECTION,
+            direction,
             CAR_SIZE,
             CAR_SPEED,
             CAR_ANGLE_SPEED,
             CAR_IMAGE
         )
         self.car_group = p.sprite.Group(self.car)
+        self.current_vertex = self.path[0]
+        self.current_sector = self.board.vertices[self.current_vertex]
+        self.next_sector = self.board.vertices[self.current_vertex + 1]
+        self.cur_path_index = 0
 
     def clear_screen(self):
         self.screen.fill(0)
@@ -61,13 +93,29 @@ class Game:
         for s in self.traffic_light_group.sprites():
             s.reset()
 
+    def update_current_sector(self):
+        current_sector = g.board.get_location(self.car.pos)
+        if current_sector and current_sector != self.current_sector:
+            self.current_sector = current_sector
+            self.next_sector = self.current_sector
+            if isinstance(current_sector, Vertex):
+                next_v = self.path[self.cur_path_index + 1]
+                if current_sector.index == next_v:
+                    self.current_vertex = current_sector
+                    for c in current_sector.corners:
+                        if c.neighbor == self.path[self.cur_path_index]:
+                            current_sector.add_segment(c.corners)
+                            self.cur_path_index += 1
+                            if self.cur_path_index < len(self.path) - 1:
+                                next_v = self.path[self.cur_path_index + 1]
+                                self.next_sector = self.board.vertices[next_v]
+                                break
+
     def handle_car_turn(self):
-        # pos = g.board.get_location(self.car.pos)
-        # if isinstance(pos, Vertex):
-        #     print('Vertex')
-        # if isinstance(pos, Edge):
-        #     print('Edge')
-        l, r, f = self.car.get_all_distance(self.board)
+        l, r = self.car.get_all_distance(self.current_sector, self.next_sector, self.board)
+        print(l, r)
+        if l == 100 or r == 100:
+            print(l,r)
         dev = l / (l + r)
         rules = get_deviation_rules(dev)
         angle_total = 0
@@ -78,14 +126,14 @@ class Game:
             angle_total += angle * weight
             weight_total += weight
         a = angle_total / weight_total
-        car_turn = 90 - a + self.car.angle
-        self.car.turn(car_turn)
+        # Convert calculated angle to car angle
+        car_angle = self._(a)
+        self.car.turn(car_angle)
 
     def handle_car_speed(self):
         pos = g.board.get_location(self.car.pos)
 
     def handle_events(self, event_list):
-        pass
         for event in event_list:
             #     if event.type == p.KEYDOWN:
             #         if event.key == p.K_UP:
@@ -117,10 +165,16 @@ class Game:
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
 
-        if len(self.moves) == 2:
-            self.path = find_shortest_path(self.graph, *self.moves)
-            draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-            pos = self.board.vertices[self.path[0]].center
+        # if len(self.moves) == 2:
+        #     self.path = find_shortest_path(self.graph, *self.moves)
+        #     draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+        #     pos = self.board.vertices[self.path[0]].center
+        #     if not self.car:
+        #         self.init_car(pos)
+        self.path = [12,17,16]
+        draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+        pos = self.board.vertices[self.path[0]].center
+        if not self.car:
             self.init_car(pos)
 
         self.vertex_group.draw(self.screen)
@@ -141,10 +195,13 @@ if __name__ == "__main__":
         if keys[p.K_c]:
             g.reset_state()
 
-        g.handle_events(events)
+        # g.handle_events(events)
+        g.car_running=True
+
         g.clear_screen()
         g.draw()
         if g.car_running:
+            g.update_current_sector()
             g.handle_car_turn()
             g.car_group.update()
             g.car_group.draw(g.screen)

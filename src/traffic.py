@@ -19,9 +19,10 @@ class Edge:
 
 class Vertex:
     def __init__(
-            self, center, corners, body,
+            self, index, center, corners, body,
             blocked, edges, segments, box
     ):
+        self.index = index
         self.center = center
         self.corners = corners
         self.body = body
@@ -31,7 +32,11 @@ class Vertex:
         self.box = box
 
     def add_segment(self, corner):
-        self.segments.append(Segment(*corner))
+        s = Segment(*corner)
+        for c in self.segments:
+            if s.equals(c):
+                return None
+        return self.segments.append(s)
 
 
 class Board:
@@ -43,7 +48,7 @@ class Board:
     def get_location(self, pos):
         for k, v in self.vertices.items():
             if v.box.contains_point(pos):
-                return k, v
+                return v
         for e in self.edges:
             if e.box.contains_point(pos):
                 return e

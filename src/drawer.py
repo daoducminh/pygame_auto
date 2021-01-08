@@ -41,37 +41,37 @@ def draw_blocked_road(surface, path, board, color):
     # Handle vertices from 1 to n-1
     for i in range(1, length - 1):
         v = board.vertices[path[i]]
-        for edge in v.corners:
-            if edge.neighbor != path[i - 1] and edge.neighbor != path[i + 1]:
+        for c in v.corners:
+            if c.neighbor != path[i - 1] and c.neighbor != path[i + 1]:
                 p.draw.line(
                     surface,
                     color,
-                    edge.corners[0],
-                    edge.corners[1]
+                    c.corners[0],
+                    c.corners[1]
                 )
-                v.add_segment(edge.corners)
+                v.add_segment(c.corners)
     # Handle vertex 0
     v = board.vertices[path[0]]
-    for edge in v.corners:
-        if edge.neighbor != path[1]:
+    for c in v.corners:
+        if c.neighbor != path[1]:
             p.draw.line(
                 surface,
                 color,
-                edge.corners[0],
-                edge.corners[1]
+                c.corners[0],
+                c.corners[1]
             )
-            v.add_segment(edge.corners)
+            v.add_segment(c.corners)
     # Handle vertex n
     v = board.vertices[path[length - 1]]
-    for edge in v.corners:
-        if edge.neighbor != path[length - 2]:
+    for c in v.corners:
+        if c.neighbor != path[length - 2]:
             p.draw.line(
                 surface,
                 color,
-                edge.corners[0],
-                edge.corners[1]
+                c.corners[0],
+                c.corners[1]
             )
-            v.add_segment(edge.corners)
+            v.add_segment(c.corners)
 
 
 def draw_vertices(surface, board, radius):

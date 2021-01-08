@@ -106,6 +106,7 @@ def get_board(data):
         body = tuple(coords[i] for i in v[BODY])
 
         vertices[v_index] = Vertex(
+            index=v_index,
             center=coords[v[CENTER]],
             corners=tuple(cs),
             body=body,
