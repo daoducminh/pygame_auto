@@ -43,8 +43,10 @@ class Game:
         self.path = None
         self.current_vertex = None
         self.current_sector = None
+        self.next_vertex = None
         self.next_sector = None
         self.cur_path_index = None
+        self.trick = None
 
     def _(self, angle):
         car_angle = 90 - angle
@@ -59,6 +61,11 @@ class Game:
             direction = (next_p[0] - start[0], next_p[1] - start[1])
             dir_vector = p.Vector2(*direction).normalize()
             a = dir_vector.angle_to(self.car.direction)
+            if abs(a) >= 180:
+                if a > 0:
+                    a = 360 - a
+                else:
+                    a = a + 360
             delta = abs(a - car_angle)
             if delta > THRESHOLD:
                 return handle_angle(a)
@@ -81,8 +88,9 @@ class Game:
         )
         self.car_group = p.sprite.Group(self.car)
         self.current_vertex = self.path[0]
+        self.next_vertex = self.path[1]
         self.current_sector = self.board.vertices[self.current_vertex]
-        self.next_sector = self.board.vertices[self.current_vertex + 1]
+        self.next_sector = self.board.vertices[self.next_vertex]
         self.cur_path_index = 0
 
     def clear_screen(self):
@@ -115,7 +123,7 @@ class Game:
         l, r = self.car.get_all_distance(self.current_sector, self.next_sector, self.board)
         print(l, r)
         if l == 100 or r == 100:
-            print(l,r)
+            print(l, r)
         dev = l / (l + r)
         rules = get_deviation_rules(dev)
         angle_total = 0
@@ -129,6 +137,7 @@ class Game:
         # Convert calculated angle to car angle
         car_angle = self._(a)
         self.car.turn(car_angle)
+        print(self.car.angle)
 
     def handle_car_speed(self):
         pos = g.board.get_location(self.car.pos)
@@ -165,17 +174,18 @@ class Game:
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
 
-        # if len(self.moves) == 2:
-        #     self.path = find_shortest_path(self.graph, *self.moves)
-        #     draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        #     pos = self.board.vertices[self.path[0]].center
-        #     if not self.car:
-        #         self.init_car(pos)
-        self.path = [12,17,16]
-        draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        pos = self.board.vertices[self.path[0]].center
-        if not self.car:
-            self.init_car(pos)
+        if len(self.moves) == 2:
+            self.path = find_shortest_path(self.graph, *self.moves)
+            draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+            pos = self.board.vertices[self.path[0]].center
+            if not self.car:
+                self.init_car(pos)
+
+        # self.path = [12, 17, 16]
+        # draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+        # pos = self.board.vertices[self.path[0]].center
+        # if not self.car:
+        #     self.init_car(pos)
 
         self.vertex_group.draw(self.screen)
 
@@ -195,8 +205,8 @@ if __name__ == "__main__":
         if keys[p.K_c]:
             g.reset_state()
 
-        # g.handle_events(events)
-        g.car_running=True
+        g.handle_events(events)
+        # g.car_running = True
 
         g.clear_screen()
         g.draw()

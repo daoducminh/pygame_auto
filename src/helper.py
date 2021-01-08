@@ -18,11 +18,16 @@ def find_shortest_path(graph, source, target):
 
 def handle_angle(angle):
     t = abs(angle)
+    if t > 60:
+        if angle > 0:
+            return MIN_ANGLE * 1.7
+        else:
+            return -MIN_ANGLE * 1.7
     if t > 40:
         if angle > 0:
-            return MIN_ANGLE * 1.2
+            return MIN_ANGLE * 1.3
         else:
-            return -MIN_ANGLE * 1.2
+            return -MIN_ANGLE * 1.3
     elif t > 20:
         if angle > 0:
             return MIN_ANGLE

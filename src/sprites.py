@@ -81,6 +81,10 @@ class CarSprite(p.sprite.Sprite):
     def turn(self, factor):
         self.direction.rotate_ip(-factor * self.angle_speed)
         self.angle -= factor * self.angle_speed
+        if self.angle >= 360:
+            self.angle -= 360
+        elif self.angle <= -360:
+            self.angle += 360
         self.image = p.transform.rotate(self.original_image, -self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
         self.update_rays()
