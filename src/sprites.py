@@ -89,6 +89,9 @@ class CarSprite(p.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
         self.update_rays()
 
+    def set_speed(self, speed):
+        self.speed = speed
+
     def distance_1(self, segments, left, right):
         """
         For vertex
@@ -118,7 +121,7 @@ class CarSprite(p.sprite.Sprite):
 
 class TrafficLightSprite(p.sprite.Sprite):
     def __init__(self, index, x, y):
-        super().__init__()
+        super(TrafficLightSprite, self).__init__()
         self.index = index
         self.is_green = True
         self.time = PERIOD_TIME
