@@ -6,144 +6,64 @@ from constants.fuzziness.values import STEERING
 
 
 def get_functions(label, args, min_arg):
-    if label == MIDDLE:
+    if label in (MIDDLE, LEFT, RIGHT):
+        a = STEERING[label]
         if min_arg == 1:
             def fx(x):
-                if 67.5 < x <= 90:
-                    return (x - 67.5) / 22.5
-                elif 90 < x <= 112.5:
-                    return (112.5 - x) / 22.5
+                if a[0] < x <= a[1]:
+                    return (x - a[0]) / (a[1] - a[0])
+                elif a[1] < x <= a[2]:
+                    return (a[2] - x) / (a[2] - a[1])
                 else:
                     return 0
 
             def xfx(x):
-                if 67.5 < x <= 90:
-                    return x * (x - 67.5) / 22.5
-                elif 90 < x <= 112.5:
-                    return x * (112.5 - x) / 22.5
+                if a[0] < x <= a[1]:
+                    return x * (x - a[0]) / (a[1] - a[0])
+                elif a[1] < x <= a[2]:
+                    return x * (a[2] - x) / (a[2] - a[1])
                 else:
                     return 0
 
             return fx, xfx, min_arg
         else:
             def fx(x):
-                if 67.5 < x <= args[0]:
-                    return (x - 67.5) / 22.5
+                if a[0] < x <= args[0]:
+                    return (x - a[0]) / (a[1] - a[0])
                 elif args[0] < x <= args[1]:
                     return min_arg
-                elif args[1] < x <= 112.5:
-                    return (112.5 - x) / 22.5
+                elif args[1] < x <= a[2]:
+                    return (a[2] - x) / (a[2] - a[1])
                 else:
                     return 0
 
             def xfx(x):
-                if 67.5 < x <= args[0]:
-                    return x * (x - 67.5) / 22.5
+                if a[0] < x <= args[0]:
+                    return x * (x - a[0]) / (a[1] - a[0])
                 elif args[0] < x <= args[1]:
                     return x * min_arg
-                elif args[1] < x <= 112.5:
-                    return x * (112.5 - x) / 22.5
-                else:
-                    return 0
-
-            return fx, xfx, min_arg
-    if label == LEFT:
-        if min_arg == 1:
-            def fx(x):
-                if 45 < x <= 67.5:
-                    return (x - 45) / 22.5
-                elif 67.5 < x <= 90:
-                    return (90 - x) / 22.5
-                else:
-                    return 0
-
-            def xfx(x):
-                if 45 < x <= 67.5:
-                    return x * (x - 45) / 22.5
-                elif 67.5 < x <= 90:
-                    return x * (90 - x) / 22.5
-                else:
-                    return 0
-
-            return fx, xfx, min_arg
-        else:
-            def fx(x):
-                if 45 < x <= args[0]:
-                    return (x - 45) / 22.5
-                elif args[0] < x <= args[1]:
-                    return min_arg
-                elif args[1] < x <= 90:
-                    return (90 - x) / 22.5
-                else:
-                    return 0
-
-            def xfx(x):
-                if 45 < x <= args[0]:
-                    return x * (x - 45) / 22.5
-                elif args[0] < x <= args[1]:
-                    return x * min_arg
-                elif args[1] < x <= 90:
-                    return x * (90 - x) / 22.5
-                else:
-                    return 0
-
-            return fx, xfx, min_arg
-    if label == RIGHT:
-        if min_arg == 1:
-            def fx(x):
-                if 90 < x <= 112.5:
-                    return (x - 90) / 22.5
-                elif 112.5 < x <= 135:
-                    return (135 - x) / 22.5
-                else:
-                    return 0
-
-            def xfx(x):
-                if 90 < x <= 112.5:
-                    return x * (x - 90) / 22.5
-                elif 112.5 < x <= 135:
-                    return x * (135 - x) / 22.5
-                else:
-                    return 0
-
-            return fx, xfx, min_arg
-        else:
-            def fx(x):
-                if 90 < x <= args[0]:
-                    return (x - 90) / 22.5
-                elif args[0] < x <= args[1]:
-                    return min_arg
-                elif args[1] < x <= 135:
-                    return (135 - x) / 22.5
-                else:
-                    return 0
-
-            def xfx(x):
-                if 90 < x <= args[0]:
-                    return x * (x - 90) / 22.5
-                elif args[0] < x <= args[1]:
-                    return x * min_arg
-                elif args[1] < x <= 135:
-                    return x * (135 - x) / 22.5
+                elif args[1] < x <= a[2]:
+                    return x * (a[2] - x) / (a[2] - a[1])
                 else:
                     return 0
 
             return fx, xfx, min_arg
     if label == FAR_LEFT:
+        a = STEERING[FAR_LEFT]
         if min_arg == 1:
             def fx(x):
-                if x <= 45:
+                if x <= a[0]:
                     return 1
-                elif 45 < x <= 67.5:
-                    return (67.5 - x) / 22.5
+                elif a[0] < x <= a[1]:
+                    return (a[1] - x) / (a[1] - a[0])
                 else:
                     return 0
 
             def xfx(x):
-                if x <= 45:
+                if x <= a[0]:
                     return x
-                elif 45 < x <= 67.5:
-                    return x * (67.5 - x) / 22.5
+                elif a[0] < x <= a[1]:
+                    return x * (a[1] - x) / (a[1] - a[0])
                 else:
                     return 0
 
@@ -152,53 +72,54 @@ def get_functions(label, args, min_arg):
             def fx(x):
                 if x <= args[0]:
                     return min_arg
-                elif args[0] < x <= 67.5:
-                    return (67.5 - x) / 22.5
+                elif args[0] < x <= a[1]:
+                    return (a[1] - x) / (a[1] - a[0])
                 else:
                     return 0
 
             def xfx(x):
                 if x <= args[0]:
                     return x * min_arg
-                elif args[0] < x <= 67.5:
-                    return x * (67.5 - x) / 22.5
+                elif args[0] < x <= a[1]:
+                    return x * (a[1] - x) / (a[1] - a[0])
                 else:
                     return 0
 
             return fx, xfx, min_arg
     if label == FAR_RIGHT:
+        a = STEERING[FAR_RIGHT]
         if min_arg == 1:
             def fx(x):
-                if x <= 112.5:
+                if x <= a[0]:
                     return 0
-                elif 112.5 < x <= 135:
-                    return (x - 112.5) / 22.5
+                elif a[0] < x <= a[1]:
+                    return (x - a[0]) / (a[1] - a[0])
                 else:
                     return 1
 
             def xfx(x):
-                if x <= 112.5:
+                if x <= a[0]:
                     return 0
-                elif 112.5 < x <= 135:
-                    return x * (x - 112.5) / 22.5
+                elif a[0] < x <= a[1]:
+                    return x * (x - a[0]) / (a[1] - a[0])
                 else:
                     return x
 
             return fx, xfx, min_arg
         else:
             def fx(x):
-                if x <= 112.5:
+                if x <= a[0]:
                     return 0
-                elif 112.5 < x <= args[0]:
-                    return (x - 112.5) / 22.5
+                elif a[0] < x <= args[0]:
+                    return (x - a[0]) / (a[1] - a[0])
                 else:
                     return min_arg
 
             def xfx(x):
-                if x <= 112.5:
+                if x <= a[0]:
                     return 0
-                elif 112.5 < x <= args[0]:
-                    return x * (x - 112.5) / 22.5
+                elif a[0] < x <= args[0]:
+                    return x * (x - a[0]) / (a[1] - a[0])
                 else:
                     return x * min_arg
 
@@ -243,7 +164,7 @@ class SteeringDeduction:
 
     def calculate(self, label, args, min_arg):
         fx, xfx, weight = get_functions(label, args, min_arg)
-        a, e = quad(xfx, 0, 180)
-        b, e = quad(fx, 0, 180)
+        a, e = quad(xfx, 0, 180, maxp1=500, limit=500)
+        b, e = quad(fx, 0, 180, maxp1=500, limit=500)
         angle = a / b
         return angle, weight

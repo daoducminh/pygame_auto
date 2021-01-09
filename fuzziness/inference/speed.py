@@ -169,7 +169,7 @@ class SpeedDeduction:
             return 0, 1
         else:
             fx, xfx, weight = get_functions(label, args, min_arg)
-            a, e = quad(xfx, 0, 5)
-            b, e = quad(fx, 0, 5)
+            a, e = quad(xfx, 0, 7, maxp1=500, limit=500)
+            b, e = quad(fx, 0, 7, maxp1=500, limit=500)
             speed = a / b
             return speed, weight
