@@ -137,10 +137,10 @@ class Game:
                     self.finish = True
 
     def handle_car_turn(self):
-        if self.current_vertex==11:
-            print('')
+        # if self.current_vertex==11:
+        #     print('')
         l, r = self.car.get_all_distance(self.current_sector, self.next_sector, self.board)
-        self.get_distance()
+        # self.get_distance()
         dev = l / (l + r)
         rules = get_deviation_rules(dev)
         angle_total = 0
@@ -234,19 +234,19 @@ class Game:
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
 
-        # if len(self.moves) == 2:
-        #     self.path = find_shortest_path(self.graph, *self.moves)
-        #     draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        #     pos = self.board.vertices[self.path[0]].center
-        #     if not self.car:
-        #         self.init_car(pos)
+        if len(self.moves) == 2:
+            self.path = find_shortest_path(self.graph, *self.moves)
+            draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+            pos = self.board.vertices[self.path[0]].center
+            if not self.car:
+                self.init_car(pos)
 
         # self.path = [1, 2, 4, 5]
-        self.path = find_shortest_path(self.graph, 18, 6)
-        draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        pos = self.board.vertices[self.path[0]].center
-        if not self.car:
-            self.init_car(pos)
+        # self.path = find_shortest_path(self.graph, 18, 6)
+        # draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+        # pos = self.board.vertices[self.path[0]].center
+        # if not self.car:
+        #     self.init_car(pos)
 
         self.vertex_group.draw(self.screen)
 
@@ -266,8 +266,8 @@ if __name__ == "__main__":
         if keys[p.K_c]:
             g.reset_state()
 
-        # g.handle_events(events)
-        g.car_running = True
+        g.handle_events(events)
+        # g.car_running = True
 
         g.clear_screen()
         g.draw()
@@ -275,7 +275,7 @@ if __name__ == "__main__":
             g.update_current_sector()
             if g.car.speed != 0:
                 g.handle_car_turn()
-            # g.handle_car_speed()
+            g.handle_car_speed()
             g.car_group.update()
             g.car_group.draw(g.screen)
 
