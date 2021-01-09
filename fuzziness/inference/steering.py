@@ -2,6 +2,7 @@ import pandas as pd
 from scipy.integrate import quad
 
 from constants.fuzziness.names import *
+from constants.fuzziness.values import STEERING
 
 
 def get_functions(label, args, min_arg):
@@ -219,34 +220,25 @@ class SteeringDeduction:
         label = self.get_steering_label(rule[0])
         m = rule[1]
         # Inverse function
-        if label == MIDDLE:
+        if label in (MIDDLE, LEFT, RIGHT):
+            a = STEERING[label]
             if m == 1:
-                args.append(90)
+                args.append(a[1])
             else:
-                args.append(22.5 * m + 67.5)
-                args.append(112.5 - 22.5 * m)
-        if label == LEFT:
-            if m == 1:
-                args.append(67.5)
-            else:
-                args.append(22.5 * m + 45)
-                args.append(90 - 22.5 * m)
-        if label == RIGHT:
-            if m == 1:
-                args.append(112.5)
-            else:
-                args.append(22.5 * m + 90)
-                args.append(135 - 22.5 * m)
+                args.append((a[1] - a[0]) * m + a[0])
+                args.append(a[2] - (a[2] - a[1]) * m)
         if label == FAR_LEFT:
+            a = STEERING[FAR_LEFT]
             if m == 1:
-                args.append(45)
+                args.append(a[0])
             else:
-                args.append(67.5 - 22.5 * m)
+                args.append(a[1] - (a[1] - a[0]) * m)
         if label == FAR_RIGHT:
+            a = STEERING[FAR_RIGHT]
             if m == 1:
-                args.append(135)
+                args.append(a[1])
             else:
-                args.append(22.5 * m + 112.5)
+                args.append((a[1] - a[0]) * m + a[0])
         return label, tuple(args), m
 
     def calculate(self, label, args, min_arg):

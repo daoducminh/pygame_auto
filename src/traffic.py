@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-from sympy import Segment
+from sympy import Segment, Point
 
 
 class Corner:
     def __init__(self, neighbor, corners):
         self.neighbor = neighbor
         self.corners = corners
+        self.midpoint = (
+            (corners[0][0] + corners[1][0]) / 2,
+            (corners[0][1] + corners[1][1]) / 2
+        )
+        self.midpoint_p = Point(*self.midpoint)
 
 
 class Edge:

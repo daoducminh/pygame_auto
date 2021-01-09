@@ -1,9 +1,9 @@
 light,distance,speed
-green,medium,normal
-red,medium,slow
+green,medium,fast
+red,medium,normal
 green,near,normal
 red,near,stop
 less_green,medium,slow
-less_green,near,stop
-less_red,medium,normal
+less_green,near,slow
+less_red,medium,fast
 less_red,near,stop

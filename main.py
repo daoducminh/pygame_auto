@@ -7,13 +7,13 @@ from constants.board import *
 from constants.car import *
 from constants.files import DATA_FILE, BOARD_FILE, GRAPH_FILE, STEERING_FILE, SPEED_FILE
 from constants.styles import *
-from fuzziness.fuzzification import get_deviation_rules
+from fuzziness.fuzzification import get_deviation_rules, get_light_rules, get_distance_rules
 from fuzziness.inference.speed import SpeedDeduction
 from fuzziness.inference.steering import SteeringDeduction
 from src.drawer import draw_map, get_traffic_light_group, draw_blocked_road, get_vertex_group
 from src.helper import read_data, handle_angle, find_shortest_path
-from src.sprites import CarSprite
-from src.traffic import Board, Vertex
+from src.sprites import CarSprite, PERIOD_TIME
+from src.traffic import Board, Vertex, Edge
 
 FPS = 30
 fps_clock = p.time.Clock()
@@ -30,7 +30,7 @@ class Game:
         self.board: Board = read_data(BOARD_FILE)
         self.graph: Graph = read_data(GRAPH_FILE)
         self.traffic_light_group: p.sprite.Group = get_traffic_light_group(self.board)
-        self.car = None
+        self.car: CarSprite = None
         self.car_group = None
         self.vertex_group: p.sprite.Group = get_vertex_group(self.board)
         self.moves = []
@@ -47,24 +47,36 @@ class Game:
         self.next_sector = None
         self.cur_path_index = None
 
-        self.traffic_light = self.traffic_light_group.sprites()[0]
+        self.traffic_lights = self.traffic_light_group.sprites()
+        self.finish = None
 
     def _(self, angle):
         car_angle = 90 - angle
         if self.cur_path_index < len(self.path) - 1:
-            i1 = self.path[self.cur_path_index]
-            i2 = self.path[self.cur_path_index + 1]
-            v1 = self.board.vertices[i1]
-            v2 = self.board.vertices[i2]
+            next_p = None
+            if isinstance(self.current_sector, Vertex):
+                for c in self.current_sector.corners:
+                    if c.neighbor == self.next_vertex:
+                        next_p = c.midpoint_p
+            elif isinstance(self.current_sector, Edge):
+                for c in self.board.vertices[self.next_vertex].corners:
+                    if c.neighbor == self.current_vertex:
+                        next_p = c.midpoint_p
+            # i1 = self.path[self.cur_path_index]
+            # i2 = self.path[self.cur_path_index + 1]
+            # v1 = self.board.vertices[i1]
+            # v2 = self.board.vertices[i2]
             # start = v1.center
             start = self.car.pos
-            next_p = v2.center
+            if not next_p:
+                v2 = self.board.vertices[self.next_vertex]
+                next_p = v2.center
             direction = (next_p[0] - start[0], next_p[1] - start[1])
             dir_vector = p.Vector2(*direction).normalize()
             a = dir_vector.angle_to(self.car.direction)
             if abs(a) >= 180:
                 if a > 0:
-                    a = 360 - a
+                    a = a - 360
                 else:
                     a = a + 360
             delta = abs(a - car_angle)
@@ -108,22 +120,27 @@ class Game:
             self.current_sector = current_sector
             self.next_sector = self.current_sector
             if isinstance(current_sector, Vertex):
-                next_v = self.path[self.cur_path_index + 1]
-                if current_sector.index == next_v:
-                    self.next_vertex = next_v
-                    self.current_sector = current_sector
-                    for c in current_sector.corners:
-                        if c.neighbor == self.path[self.cur_path_index]:
-                            current_sector.add_segment(c.corners)
-                            self.cur_path_index += 1
-                            if self.cur_path_index < len(self.path) - 1:
-                                next_v = self.path[self.cur_path_index + 1]
-                                self.next_sector = self.board.vertices[next_v]
+                self.cur_path_index += 1
+                if self.cur_path_index < len(self.path) - 1:
+                    next_v = self.path[self.cur_path_index + 1]
+                    if current_sector.index != next_v:
+                        self.current_vertex = self.next_vertex
+                        self.next_vertex = next_v
+                        self.current_sector = current_sector
+                        for c in current_sector.corners:
+                            if c.neighbor == self.path[self.cur_path_index]:
+                                current_sector.add_segment(c.corners)
                                 break
+                        next_v = self.path[self.cur_path_index + 1]
+                        self.next_sector = self.board.vertices[next_v]
+                else:
+                    self.finish = True
 
     def handle_car_turn(self):
+        if self.current_vertex==11:
+            print('')
         l, r = self.car.get_all_distance(self.current_sector, self.next_sector, self.board)
-        print(l, r)
+        self.get_distance()
         dev = l / (l + r)
         rules = get_deviation_rules(dev)
         angle_total = 0
@@ -142,11 +159,48 @@ class Game:
         light = self.get_list_status()
         distance = self.get_distance()
 
+        light_rules = get_light_rules(light)
+        distance_rules = get_distance_rules(distance)
+
+        speed_total = 0
+        weight_total = 0
+
+        for r1 in light_rules:
+            for r2 in distance_rules:
+                label, args, min_arg = self.speed.deduce(r1, r2)
+                speed, weight = self.speed.calculate(label, args, min_arg)
+                speed_total += speed * weight
+                weight_total += weight
+        car_speed = speed_total / weight_total
+        self.car.set_speed(car_speed)
+
     def get_list_status(self):
-        return self.traffic_light.time
+        for i in self.traffic_lights:
+            if i.index == self.next_vertex:
+                t = i.time
+                if t == -1:
+                    return 40
+                return t
+        return PERIOD_TIME
 
     def get_distance(self):
-        pass
+        # if isinstance(self.current_sector, Vertex):
+        #     # print(self.current_sector.index, self.current_vertex, self.next_vertex)
+        #     for c in self.current_sector.corners:
+        #         if c.neighbor == self.next_vertex:
+        #             return float(c.midpoint_p.distance(self.car.pos_point))
+        #
+        # elif isinstance(self.current_sector, Edge):
+        #     # print(self.current_sector.vertices, self.cur_path_index, self.next_vertex)
+        #     v = self.board.vertices[self.next_vertex]
+        #     for c in v.corners:
+        #         if c.neighbor == self.current_vertex:
+        #             return float(self.car.pos_point.distance(c.midpoint_p))
+
+        v = self.board.vertices[self.next_vertex]
+        for c in v.corners:
+            if c.neighbor == self.current_vertex:
+                return float(self.car.pos_point.distance(c.midpoint_p))
 
     def handle_events(self, event_list):
         for event in event_list:
@@ -187,7 +241,8 @@ class Game:
         #     if not self.car:
         #         self.init_car(pos)
 
-        self.path = [1, 2, 4, 5]
+        # self.path = [1, 2, 4, 5]
+        self.path = find_shortest_path(self.graph, 18, 6)
         draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
         pos = self.board.vertices[self.path[0]].center
         if not self.car:
@@ -216,7 +271,7 @@ if __name__ == "__main__":
 
         g.clear_screen()
         g.draw()
-        if g.car_running:
+        if g.car_running and not g.finish:
             g.update_current_sector()
             if g.car.speed != 0:
                 g.handle_car_turn()

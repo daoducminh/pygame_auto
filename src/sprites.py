@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from math import radians
-
+import random
 import pygame as p
 from sympy import Ray, Point
 
@@ -8,8 +8,8 @@ from constants.car import MAX_SCAN_DISTANCE
 from constants.styles import *
 from src.traffic import Vertex, Edge
 
-RED_TIME = 10
-GREEN_TIME = 10
+RED_TIME = 20
+GREEN_TIME = 20
 PERIOD_TIME = RED_TIME + GREEN_TIME
 
 
@@ -124,7 +124,7 @@ class TrafficLightSprite(p.sprite.Sprite):
         super(TrafficLightSprite, self).__init__()
         self.index = index
         self.is_green = True
-        self.time = PERIOD_TIME
+        self.time = random.randint(1, PERIOD_TIME - 1)
         self.red_light = p.Surface((VERTEX_SIZE, VERTEX_SIZE))
         p.draw.circle(
             self.red_light,
