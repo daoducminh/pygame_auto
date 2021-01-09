@@ -2,6 +2,7 @@
 
 import pygame as p
 from networkx import Graph
+from sympy import Point
 
 from constants.board import *
 from constants.car import *
@@ -222,6 +223,15 @@ class Game:
                         for s in self.vertex_group.sprites():
                             s.hide()
 
+    def check_finish(self):
+        if isinstance(self.current_sector, Edge):
+            for vi in TRAFFIC_LIGHT_EXCLUDE:
+                if vi in self.current_sector.vertices:
+                    v_center = Point(self.board.vertices[vi].center)
+                    d = self.car.pos_point.distance(v_center)
+                    if d < 10:
+                        self.finish = True
+
     def draw(self):
         # self.screen.blit(self.map_surface, MAP_POSITION)
         draw_map(self.screen, self.board.map_board, COLOR_WHITE, 1)
@@ -234,19 +244,19 @@ class Game:
         #     draw_blocked_road(self.screen, path, self.board, COLOR_RED)
         #
 
-        # if len(self.moves) == 2:
-        #     self.path = find_shortest_path(self.graph, *self.moves)
-        #     draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        #     pos = self.board.vertices[self.path[0]].center
-        #     if not self.car:
-        #         self.init_car(pos)
+        if len(self.moves) == 2:
+            self.path = find_shortest_path(self.graph, *self.moves)
+            draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+            pos = self.board.vertices[self.path[0]].center
+            if not self.car:
+                self.init_car(pos)
 
         # self.path = [1, 2, 4, 5]
-        self.path = find_shortest_path(self.graph, 18, 6)
-        draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
-        pos = self.board.vertices[self.path[0]].center
-        if not self.car:
-            self.init_car(pos)
+        # self.path = find_shortest_path(self.graph, 18, 6)
+        # draw_blocked_road(self.screen, self.path, self.board, COLOR_RED)
+        # pos = self.board.vertices[self.path[0]].center
+        # if not self.car:
+        #     self.init_car(pos)
 
         self.vertex_group.draw(self.screen)
 
@@ -266,12 +276,13 @@ if __name__ == "__main__":
         if keys[p.K_c]:
             g.reset_state()
 
-        # g.handle_events(events)
-        g.car_running = True
+        g.handle_events(events)
+        # g.car_running = True
 
         g.clear_screen()
         g.draw()
         if g.car_running and not g.finish:
+            g.check_finish()
             g.update_current_sector()
             if g.car.speed != 0:
                 g.handle_car_turn()
